@@ -1,0 +1,37 @@
+# Redis
+redis-cache
+
+# Tools
+bin
+
+build
+
+# Go
+go.work.sum
+
+# Tests reports
+*/__pycache__
+
+tests/venv/*
+tests/*/report.txt
+
+# log files
+sqs.log
+
+# Vim backup, undo files
+*.orig
+*~
+
+# Vim swap files
+.*.swp
+.*.swo
+
+# Delve debug
+__debug_bin*
+debug.test*
+
+# Local env for the order book filler
+ingest/usecase/plugins/orderbook/fillbot/.env
+config_orderbook_fill_plugin.json
+
+.envrc
