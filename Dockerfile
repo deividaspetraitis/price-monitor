@@ -21,6 +21,7 @@ RUN set -eux; apk add --no-cache ca-certificates build-base linux-headers
 
 RUN GOWORK=off go build -mod=readonly \
     -ldflags \
+    "-w -s -linkmode=external -extldflags '-Wl,-z,muldefs -static'" \
     -v -o /app/build/monitord /app/cmd/monitord/main.go 
 
 # --------------------------------------------------------

@@ -29,15 +29,6 @@ services:
           "openmetrics": {
             "init_configs": [{}],
             "instances": [
-              {
-                "openmetrics_endpoint": "http://droid:8080/metrics",
-                "namespace": "osmosisd",
-                "metrics": 
-                  [
-                    {"osmosisd_info": "info"},
-                    {"osmosisd_cur_eip_base_fee": "cur_eip_base_fee"}
-                  ]
-              }#,
               # {
               #   "openmetrics_endpoint": "http://nginx/metrics",
               #   "namespace": "sqs",
