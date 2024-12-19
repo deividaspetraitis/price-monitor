@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION="1.22"
+ARG GO_VERSION="1.23"
 ARG RUNNER_IMAGE="ubuntu"
 
 # --------------------------------------------------------
 # Builder
 # --------------------------------------------------------
 
-FROM golang:1.22-alpine as builder
+FROM golang:1.23-alpine as builder
 
 ARG GIT_VERSION
 ARG GIT_COMMIT
@@ -17,8 +17,7 @@ WORKDIR /app
 COPY go.mod ./
 COPY . .
 
-RUN set -eux; apk add --no-cache ca-certificates build-base linux-headers && \
-    go mod download
+RUN set -eux; apk add --no-cache ca-certificates build-base linux-headers
 
 RUN GOWORK=off go build -mod=readonly \
     -ldflags \

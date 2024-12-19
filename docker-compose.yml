@@ -22,7 +22,7 @@ services:
 
   dd-agent:
     image: gcr.io/datadoghq/agent:7
-    container_name: dd-agent
+    container_name: price-monitor-dd-agent
     labels:
       com.datadoghq.ad.checks: |
         {
