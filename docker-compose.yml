@@ -35,7 +35,7 @@ services:
                 "metrics": 
                   [
                     "price_monitor_heartbeat",
-                    "price_monitor_price_errors_total"
+                    "price_monitor_price_errors"
                   ]
               }
             ]

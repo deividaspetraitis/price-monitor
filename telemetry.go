@@ -14,7 +14,7 @@ import (
 
 var (
 	// PriceMonitorErrorCounterMetricName is the name of the Prometheus metric for measuring the number of pricing errors.
-	PriceMonitorErrorCounterMetricName = "price_monitor_price_errors_total"
+	PriceMonitorErrorCounterMetricName = "price_monitor_price_errors"
 
 	// PriceMonitorErrorCounterMetricName is the name of the Prometheus metric for sending a heartbeat signal of the price monitor.
 	PriceMonitorHeartbeatMetricName = "price_monitor_heartbeat"
