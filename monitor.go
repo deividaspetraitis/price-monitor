@@ -1,8 +1,9 @@
 package monitor
 
 import (
-	"log"
 	"math"
+
+	"github.com/deividaspetraitis/price-monitor/log"
 )
 
 type PriceData struct {
@@ -16,7 +17,7 @@ type Provider interface {
 }
 
 // Fetch fetches prices for the given pairs from the given providers.
-func Fetch(providers []Provider, pairs []Pair, logger *log.Logger) []PriceData {
+func Fetch(providers []Provider, pairs []Pair, logger log.Logger) []PriceData {
 	var prices []PriceData
 	for _, provider := range providers {
 		p, err := provider.GetPrices(pairs)
@@ -36,7 +37,7 @@ func Fetch(providers []Provider, pairs []Pair, logger *log.Logger) []PriceData {
 }
 
 // Compare compares prices for each Pair and logs an error if the price difference exceeds the threshold.
-func Compare(prices []PriceData, threshold float64, logger *log.Logger) {
+func Compare(prices []PriceData, threshold float64, logger log.Logger) {
 	pairPrices := make(map[Pair][]float64)
 
 	// Group prices by Pair
