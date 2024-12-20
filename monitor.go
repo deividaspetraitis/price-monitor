@@ -57,8 +57,11 @@ func Compare(prices []PriceData, threshold float64, logger *log.Logger) {
 						priceDiff,
 						threshold,
 					)
+					PricingErrorCounter.Inc() // Increment error counter
 				}
 			}
 		}
 	}
+
+	PricingHeartbeatCounter.Inc() // Send heartbeat signal
 }

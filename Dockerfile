@@ -14,7 +14,7 @@ ARG GIT_COMMIT
 
 WORKDIR /app
 
-COPY go.mod ./
+COPY go.mod go.sum ./
 COPY . .
 
 RUN set -eux; apk add --no-cache ca-certificates build-base linux-headers
