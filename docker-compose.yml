@@ -31,18 +31,13 @@ services:
             "instances": [
               {
                 "openmetrics_endpoint": "http://price-monitor:8080/metrics",
-                "namespace": "osmosisd",
+                "namespace": "pricemonitor",
                 "metrics": 
                   [
-                    {"osmosisd_info": "info"},
-                    {"osmosisd_cur_eip_base_fee": "cur_eip_base_fee"}
+                    "price_monitor_heartbeat",
+                    "price_monitor_price_errors_total"
                   ]
-              }#,
-              # {
-              #   "openmetrics_endpoint": "http://nginx/metrics",
-              #   "namespace": "sqs",
-              #   "metrics": [".*"]
-              # }
+              }
             ]
           }
         }
@@ -50,16 +45,6 @@ services:
       - DD_API_KEY=${DD_API_KEY}
       - DD_SITE=us5.datadoghq.com
       - DD_ENV=prod
-      - DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT=0.0.0.0:4317
-      - DD_APM_ENABLED=true
-      - DD_LOGS_ENABLED=true 
-      - DD_LOGS_CONFIG_DOCKER_CONTAINER_FORCE_USE_FILE=true
-      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
-      - DD_CONTAINER_EXCLUDE_LOGS=image:.*agent.* image:.*droid.*
-      - DD_OTLP_CONFIG_LOGS_ENABLED=true
-      - DD_APM_PROBABILISTIC_SAMPLER_ENABLED=true
-      - DD_APM_PROBABILISTIC_SAMPLER_SAMPLING_PERCENTAGE=1
-
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - /proc/:/host/proc/:rw
