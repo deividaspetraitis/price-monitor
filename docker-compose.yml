@@ -3,16 +3,14 @@ version: "3"
 services:
   price-monitor:
     environment:
-      - DD_AGENT_HOST=dd-agent
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://dd-agent:4317
       - DD_SERVICE=sqs-price-monitor
-      - DD_ENV=prod
-      - DD_VERSION=25.0.0
     build:
       context: ./
       dockerfile: Dockerfile
     container_name: price-monitor
     restart: always
+    ports:
+      - 8080:8080
     logging:
       driver: "json-file"
       options:
