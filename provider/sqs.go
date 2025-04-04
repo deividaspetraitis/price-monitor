@@ -17,9 +17,9 @@ type SQSClient struct {
 }
 
 // NewSQSClient creates a new instance of the SQSClient.
-func NewSQSClient() *SQSClient {
+func NewSQSClient(baseURL string) *SQSClient {
 	return &SQSClient{
-		BaseURL:    "http://localhost:9092",
+		BaseURL:    baseURL,
 		HTTPClient: &http.Client{},
 	}
 }

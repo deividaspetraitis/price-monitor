@@ -23,6 +23,7 @@ var shutdowntimeout = time.Duration(5) * time.Second
 var (
 	host        string
 	httpAddress string
+	sqsBaseURL  string
 	threshold   float64
 	interval    int
 	otel        bool
@@ -31,6 +32,7 @@ var (
 func init() {
 	flag.StringVar(&host, "host", "price-monitor", "the name of the host")
 	flag.StringVar(&httpAddress, "http", ":8080", "HTTP service address")
+	flag.StringVar(&sqsBaseURL, "sqs-base-url", "http://localhost:9092", "SQS provider base URL")
 	flag.Float64Var(&threshold, "threshold", 0.1, "Price difference threshold for logging")
 	flag.IntVar(&interval, "interval", 60, "Interval between price checks in seconds")
 	flag.BoolVar(&otel, "otel", false, "Enable OpenTelemetry")
@@ -95,7 +97,7 @@ func run(ctx context.Context, logger log.Logger) error {
 	// TODO: Handle shutdown gracefully
 	providers := []monitor.Provider{
 		provider.NewCoinGeckoClient(),
-		provider.NewSQSClient(),
+		provider.NewSQSClient(sqsBaseURL),
 	}
 
 	monitor.Compare(monitor.Fetch(providers, pairs, logger), threshold, logger)
