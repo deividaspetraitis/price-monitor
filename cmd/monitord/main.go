@@ -26,6 +26,7 @@ var (
 	sqsBaseURL  string
 	threshold   float64
 	interval    int
+	timeout     time.Duration
 	otel        bool
 )
 
@@ -35,6 +36,7 @@ func init() {
 	flag.StringVar(&sqsBaseURL, "sqs-base-url", "http://localhost:9092", "SQS provider base URL")
 	flag.Float64Var(&threshold, "threshold", 0.1, "Price difference threshold for logging")
 	flag.IntVar(&interval, "interval", 60, "Interval between price checks in seconds")
+	flag.DurationVar(&timeout, "timeout", time.Second*5, "Timeout for fetching prices from each provider individually")
 	flag.BoolVar(&otel, "otel", false, "Enable OpenTelemetry")
 	flag.Parse()
 }
@@ -100,7 +102,8 @@ func run(ctx context.Context, logger log.Logger) error {
 		provider.NewSQSClient(sqsBaseURL),
 	}
 
-	monitor.Compare(monitor.Fetch(providers, pairs, logger), threshold, logger)
+	// Fetch initial prices and compare them
+	monitor.Compare(monitor.Fetch(ctx, providers, pairs, timeout, logger), threshold, logger)
 
 	ticker := time.NewTicker(time.Duration(interval) * time.Second)
 	defer ticker.Stop()
@@ -109,7 +112,7 @@ func run(ctx context.Context, logger log.Logger) error {
 		for {
 			select {
 			case <-ticker.C:
-				monitor.Compare(monitor.Fetch(providers, pairs, logger), threshold, logger)
+				monitor.Compare(monitor.Fetch(ctx, providers, pairs, timeout, logger), threshold, logger)
 			case <-ctx.Done():
 				return
 			}

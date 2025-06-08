@@ -1,7 +1,9 @@
 package monitor
 
 import (
+	"context"
 	"math"
+	"time"
 
 	"github.com/deividaspetraitis/price-monitor/log"
 )
@@ -13,14 +15,17 @@ type PriceData struct {
 }
 
 type Provider interface {
-	GetPrices(cryptos Pairs) ([]PriceData, error)
+	GetPrices(ctx context.Context, cryptos Pairs) ([]PriceData, error)
 }
 
 // Fetch fetches prices for the given pairs from the given providers.
-func Fetch(providers []Provider, pairs []Pair, logger log.Logger) []PriceData {
+func Fetch(ctx context.Context, providers []Provider, pairs []Pair, timeout time.Duration, logger log.Logger) []PriceData {
 	var prices []PriceData
 	for _, provider := range providers {
-		p, err := provider.GetPrices(pairs)
+		providerCtx, cancel := context.WithTimeout(ctx, timeout)
+		defer cancel()
+
+		p, err := provider.GetPrices(providerCtx, pairs)
 		if err != nil {
 			logger.Printf("Error fetching prices: %s", err)
 			continue

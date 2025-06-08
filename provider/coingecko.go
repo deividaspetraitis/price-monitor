@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -45,7 +46,7 @@ func NewCoinGeckoCoin(coin monitor.Coin) CoinGeckoCoin {
 }
 
 // GetPrices fetches the prices of cryptocurrencies in the specified currency.
-func (c *CoinGeckoClient) GetPrices(cryptos monitor.Pairs) ([]monitor.PriceData, error) {
+func (c *CoinGeckoClient) GetPrices(ctx context.Context, cryptos monitor.Pairs) ([]monitor.PriceData, error) {
 	baseCoins := make([]string, len(cryptos))
 	for i, pair := range cryptos {
 		baseCoins[i] = NewCoinGeckoCoin(pair.Base).String()
@@ -53,7 +54,13 @@ func (c *CoinGeckoClient) GetPrices(cryptos monitor.Pairs) ([]monitor.PriceData,
 
 	quoteCoin := NewCoinGeckoCoin(cryptos[0].Quote).String()
 	url := fmt.Sprintf("%s/simple/price?ids=%s&vs_currencies=%s", c.BaseURL, strings.Join(baseCoins, ","), quoteCoin)
-	resp, err := c.HTTPClient.Get(url)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch prices: %w", err)
 	}

@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -48,14 +49,20 @@ func NewSQSCoin(coin monitor.Coin) SQSCoin {
 const defaultQuote = "ibc/498A0751C798A0D9A389AA3691123DADA57DAA4FE165D5C75894505B876BA6E4"
 
 // GetPrices fetches the prices of cryptocurrencies from the SQS API.
-func (s *SQSClient) GetPrices(cryptos monitor.Pairs) ([]monitor.PriceData, error) {
+func (s *SQSClient) GetPrices(ctx context.Context, cryptos monitor.Pairs) ([]monitor.PriceData, error) {
 	baseCoins := make([]string, len(cryptos))
 	for i, pair := range cryptos {
 		baseCoins[i] = NewSQSCoin(pair.Base).String()
 	}
 
 	url := fmt.Sprintf("%s/tokens/prices?base=%s", s.BaseURL, strings.Join(baseCoins, ","))
-	resp, err := s.HTTPClient.Get(url)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	resp, err := s.HTTPClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch prices: %w", err)
 	}
