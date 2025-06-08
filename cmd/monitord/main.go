@@ -34,7 +34,7 @@ func init() {
 	flag.StringVar(&host, "host", "price-monitor", "the name of the host")
 	flag.StringVar(&httpAddress, "http", ":8080", "HTTP service address")
 	flag.StringVar(&sqsBaseURL, "sqs-base-url", "http://localhost:9092", "SQS provider base URL")
-	flag.Float64Var(&threshold, "threshold", 0.01, "Price difference threshold for logging")
+	flag.Float64Var(&threshold, "threshold", 0.02, "Price difference threshold for logging")
 	flag.IntVar(&interval, "interval", 60, "Interval between price checks in seconds")
 	flag.DurationVar(&timeout, "timeout", time.Second*5, "Timeout for fetching prices from each provider individually")
 	flag.BoolVar(&otel, "otel", false, "Enable OpenTelemetry")
