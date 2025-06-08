@@ -41,9 +41,19 @@ func Fetch(ctx context.Context, providers []Provider, pairs []Pair, timeout time
 	return prices
 }
 
-// Compare compares prices for each Pair and logs an error if the price difference exceeds the threshold.
-func Compare(prices []PriceData, threshold float64, logger log.Logger) {
+// PriceDifference holds details about a detected price mismatch.
+type PriceDifference struct {
+	Pair       Pair
+	PriceA     float64
+	PriceB     float64
+	Difference float64
+	Threshold  float64
+}
+
+// Compare checks price differences for each Pair and returns mismatches above the threshold.
+func Compare(prices []PriceData, threshold float64) []PriceDifference {
 	pairPrices := make(map[Pair][]float64)
+	var diffs []PriceDifference
 
 	// Group prices by Pair
 	for _, data := range prices {
@@ -51,23 +61,22 @@ func Compare(prices []PriceData, threshold float64, logger log.Logger) {
 	}
 
 	// Compare prices for each Pair
-	for pair, prices := range pairPrices {
-		for i := 0; i < len(prices); i++ {
-			for j := i + 1; j < len(prices); j++ {
-				priceDiff := math.Abs(prices[i] - prices[j])
-				if priceDiff > threshold {
-					logger.Printf(
-						"Error: Price difference for pair %s/%s exceeds threshold: %.4f > %.4f\n",
-						pair.Base,
-						pair.Quote,
-						priceDiff,
-						threshold,
-					)
-					PricingErrorCounter.Inc() // Increment error counter
+	for pair, ps := range pairPrices {
+		for i := 0; i < len(ps); i++ {
+			for j := i + 1; j < len(ps); j++ {
+				diff := math.Abs(ps[i] - ps[j])
+				if diff > threshold {
+					diffs = append(diffs, PriceDifference{
+						Pair:       pair,
+						PriceA:     ps[i],
+						PriceB:     ps[j],
+						Difference: diff,
+						Threshold:  threshold,
+					})
 				}
 			}
 		}
 	}
 
-	PricingHeartbeatCounter.Inc() // Send heartbeat signal
+	return diffs
 }

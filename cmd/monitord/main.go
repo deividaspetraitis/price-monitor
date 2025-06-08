@@ -34,7 +34,7 @@ func init() {
 	flag.StringVar(&host, "host", "price-monitor", "the name of the host")
 	flag.StringVar(&httpAddress, "http", ":8080", "HTTP service address")
 	flag.StringVar(&sqsBaseURL, "sqs-base-url", "http://localhost:9092", "SQS provider base URL")
-	flag.Float64Var(&threshold, "threshold", 0.1, "Price difference threshold for logging")
+	flag.Float64Var(&threshold, "threshold", 0.01, "Price difference threshold for logging")
 	flag.IntVar(&interval, "interval", 60, "Interval between price checks in seconds")
 	flag.DurationVar(&timeout, "timeout", time.Second*5, "Timeout for fetching prices from each provider individually")
 	flag.BoolVar(&otel, "otel", false, "Enable OpenTelemetry")
@@ -102,8 +102,21 @@ func run(ctx context.Context, logger log.Logger) error {
 		provider.NewSQSClient(sqsBaseURL),
 	}
 
+	monitorAndLog := func() {
+		diff := monitor.Compare(monitor.Fetch(ctx, providers, pairs, timeout, logger), threshold)
+		for _, d := range diff {
+			logger.Printf(
+				"Error: Price difference for pair %s/%s exceeds threshold: %.4f > %.4f\n",
+				d.Pair.Base,
+				d.Pair.Quote,
+				d.Difference,
+				d.Threshold,
+			)
+		}
+	}
+
 	// Fetch initial prices and compare them
-	monitor.Compare(monitor.Fetch(ctx, providers, pairs, timeout, logger), threshold, logger)
+	monitorAndLog()
 
 	ticker := time.NewTicker(time.Duration(interval) * time.Second)
 	defer ticker.Stop()
@@ -112,7 +125,8 @@ func run(ctx context.Context, logger log.Logger) error {
 		for {
 			select {
 			case <-ticker.C:
-				monitor.Compare(monitor.Fetch(ctx, providers, pairs, timeout, logger), threshold, logger)
+				monitorAndLog()
+
 			case <-ctx.Done():
 				return
 			}
